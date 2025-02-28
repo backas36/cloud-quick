@@ -1,4 +1,13 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+if [ "$(git config --local --get core.ignorecase)" = "true" ]; then
+  echo "Setting core.ignorecase to false..."
+  git config --local core.ignorecase false
+fi
+if [ "$(git config --local --get core.autocrlf)" = "true" ]; then
+  echo "Setting core.autocrlf to false..."
+  git config --local core.autocrlf false
+fi
+
+pnpm lint-staged
