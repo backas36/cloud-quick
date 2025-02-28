@@ -65,6 +65,19 @@ pnpm lint:fix
 pnpm format
 ```
 
+### Git 工作流程
+
+本專案使用 Husky 設置了以下 Git 鉤子：
+
+1. **pre-commit**: 在提交前運行以下操作：
+
+    - 檢查並設置 Git 的 core.ignorecase 和 core.autocrlf 為 false
+    - 運行 lint-staged 對暫存的文件進行檢查和格式化
+
+2. **commit-msg**: 在提交時檢查提交信息是否符合規範
+
+3. **pre-push**: 在推送代碼前運行構建，確保代碼可以成功構建
+
 ### Git 提交規範
 
 本專案使用 Commitlint 來檢查提交信息，確保它們符合 [Conventional Commits](https://www.conventionalcommits.org/) 規範。
