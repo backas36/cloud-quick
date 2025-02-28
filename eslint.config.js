@@ -37,16 +37,7 @@ export default tseslint.config(
             prettier: pluginPrettier,
         },
         rules: {
-            "import/extensions": [
-                "error",
-                "ignorePackages",
-                {
-                    js: "never",
-                    jsx: "never",
-                    ts: "never",
-                    tsx: "never",
-                },
-            ],
+            "import/extensions": "off",
             "react/jsx-filename-extension": [1, { extensions: [".jsx", ".tsx"] }],
             "react/react-in-jsx-scope": "off",
             "react/prop-types": "off",
