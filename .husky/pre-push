@@ -1,5 +1,15 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+echo "Running tests before push..."
+pnpm test
+
+echo "Checking test coverage..."
+pnpm test:coverage
+if [ $? -ne 0 ]; then
+  echo "❌ Test coverage is below 50%. Push aborted."
+  exit 1
+fi
+
 echo "Running build before push..."
 pnpm build 
