@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-
 import airbnb from "eslint-config-airbnb";
 import airbnbTs from "eslint-config-airbnb-typescript";
 import prettier from "eslint-config-prettier";
@@ -9,6 +8,7 @@ import pluginPrettier from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -35,9 +35,15 @@ export default tseslint.config(
             "jsx-a11y": jsxA11y,
             import: importPlugin,
             prettier: pluginPrettier,
+            "simple-import-sort": simpleImportSort,
         },
         rules: {
             "import/extensions": "off",
+            "import/first": "error",
+            "import/newline-after-import": "error",
+            "import/no-duplicates": "error",
+            "simple-import-sort/imports": "error",
+            "simple-import-sort/exports": "error",
             "react/jsx-filename-extension": [1, { extensions: [".jsx", ".tsx"] }],
             "react/react-in-jsx-scope": "off",
             "react/prop-types": "off",

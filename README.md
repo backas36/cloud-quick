@@ -12,6 +12,7 @@
 - **Prettier** - 代碼格式化工具
 - **Husky** - Git 鉤子工具，用於在 Git 操作前執行腳本
 - **Commitlint** - 提交信息檢查工具，確保提交信息符合規範
+- **simple-import-sort** - 自動排序導入語句的 ESLint 插件
 
 ## 開始使用
 
@@ -64,6 +65,16 @@ pnpm lint:fix
 ```bash
 pnpm format
 ```
+
+#### 導入排序
+
+本專案使用 `eslint-plugin-simple-import-sort` 來自動排序導入語句，遵循以下順序：
+
+1. 樣式導入（如 CSS 文件）
+2. 第三方庫導入
+3. 本地模塊導入
+
+這有助於保持代碼的一致性和可讀性。當運行 `pnpm lint:fix` 時，導入語句會自動按照此順序排序。
 
 ### Git 工作流程
 
