@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function RootLayout() {
     return (
-        <div className='flex min-h-svh flex-col'>
+        <div className='flex h-svh flex-col'>
             <header className='border-border border-b py-4'>
                 <div className='container mx-auto flex items-center justify-between'>
                     <Link to='/' className='text-xl font-bold'>
@@ -20,7 +20,7 @@ export default function RootLayout() {
                     </nav>
                 </div>
             </header>
-            <main className='flex-1'>
+            <main className='flex flex-1'>
                 <Outlet />
             </main>
             <footer className='border-border border-t py-4'>

@@ -4,7 +4,6 @@ import RootLayout from "@/components/layout/RootLayout";
 import About from "@/pages/About";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/NotFound";
-import Upload from "@/pages/Upload";
 
 const router = createBrowserRouter([
     {
@@ -18,10 +17,6 @@ const router = createBrowserRouter([
             {
                 path: "about",
                 element: <About />,
-            },
-            {
-                path: "upload",
-                element: <Upload />,
             },
             {
                 path: "*",
