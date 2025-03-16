@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/sonner";
 
 import { ALLOWED_FILE_TYPES, FILE_SIZE_LIMITS, FileType, UploadFile } from "../types";
 
-export const useUploadFile = () => {
+const useUploadFile = () => {
     const [files, setFiles] = useState<UploadFile[]>([]);
 
     // 判斷檔案類型
@@ -179,3 +179,5 @@ export const useUploadFile = () => {
         formatFileSize,
     };
 };
+
+export default useUploadFile;
