@@ -1,60 +1,81 @@
 import { useTheme } from "next-themes";
 import { ExternalToast, toast as sonnerToast, Toaster as Sonner, ToasterProps } from "sonner";
 
+import { ErrorIcon, InfoIcon, SuccessIcon, WarningIcon } from "@/assets/icon";
+
 // 定義通用樣式類型
 type ToastStylePreset = Partial<ExternalToast> & {
     style?: React.CSSProperties;
 };
 
-// 預設樣式組合
+// 預設樣式組合 - 簡約黑白日式風格
 const toastStyles = {
     // 成功通知樣式
     success: {
         duration: 3000,
         style: {
-            backgroundColor: "#f0fdf4",
-            color: "#166534",
-            border: "1px solid #bbf7d0",
+            backgroundColor: "#ffffff",
+            color: "#1a1a1a",
+            border: "1px solid #e0e0e0",
+            borderRadius: "2px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+            fontFamily: "'Noto Sans JP', sans-serif",
         },
+        icon: <SuccessIcon />,
     } as ToastStylePreset,
 
     // 錯誤通知樣式
     error: {
         duration: 4000,
         style: {
-            backgroundColor: "#fee2e2",
-            color: "#dc2626",
-            border: "1px solid #fca5a5",
+            backgroundColor: "#ffffff",
+            color: "#1a1a1a",
+            border: "1px solid #e0e0e0",
+            borderRadius: "2px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+            fontFamily: "'Noto Sans JP', sans-serif",
         },
+        icon: <ErrorIcon />,
     } as ToastStylePreset,
 
     // 警告通知樣式
     warning: {
         duration: 3500,
         style: {
-            backgroundColor: "#fffbeb",
-            color: "#92400e",
-            border: "1px solid #fde68a",
+            backgroundColor: "#ffffff",
+            color: "#1a1a1a",
+            border: "1px solid #e0e0e0",
+            borderRadius: "2px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+            fontFamily: "'Noto Sans JP', sans-serif",
         },
+        icon: <WarningIcon />,
     } as ToastStylePreset,
 
     // 資訊通知樣式
     info: {
         duration: 3000,
         style: {
-            backgroundColor: "#f0f9ff",
-            color: "#0369a1",
-            border: "1px solid #bae6fd",
+            backgroundColor: "#ffffff",
+            color: "#1a1a1a",
+            border: "1px solid #e0e0e0",
+            borderRadius: "2px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+            fontFamily: "'Noto Sans JP', sans-serif",
         },
+        icon: <InfoIcon />,
     } as ToastStylePreset,
 
     // 暗色系/中性通知
     neutral: {
         duration: 3000,
         style: {
-            backgroundColor: "#f9fafb",
-            color: "#374151",
-            border: "1px solid #e5e7eb",
+            backgroundColor: "#ffffff",
+            color: "#1a1a1a",
+            border: "1px solid #e0e0e0",
+            borderRadius: "2px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+            fontFamily: "'Noto Sans JP', sans-serif",
         },
     } as ToastStylePreset,
 };
@@ -75,7 +96,7 @@ const toast = {
     warning: (message: string, data?: ExternalToast) => sonnerToast(message, { ...toastStyles.warning, ...data }),
 
     // 資訊通知
-    info: (message: string, data?: ExternalToast) => sonnerToast(message, { ...toastStyles.info, ...data }),
+    info: (message: string, data?: ExternalToast) => sonnerToast.info(message, { ...toastStyles.info, ...data }),
 
     // 中性通知
     neutral: (message: string, data?: ExternalToast) => sonnerToast(message, { ...toastStyles.neutral, ...data }),
@@ -89,6 +110,33 @@ const toast = {
         sonnerToast(message, { ...customStyle, ...data }),
 };
 
+// 添加全局樣式來確保圖標顏色
+const colorStyles = `
+    .sonner-toast-success [data-icon] svg {
+        color: #22c55e !important;
+        fill: #22c55e !important;
+    }
+    .sonner-toast-error [data-icon] svg {
+        color: #ef4444 !important;
+        fill: #ef4444 !important;
+    }
+    .sonner-toast-warning [data-icon] svg {
+        color: #eab308 !important;
+        fill: #eab308 !important;
+    }
+    .sonner-toast-info [data-icon] svg {
+        color: #3b82f6 !important;
+        fill: #3b82f6 !important;
+    }
+`;
+
+// 將樣式添加到 document head
+if (typeof document !== "undefined") {
+    const styleElement = document.createElement("style");
+    styleElement.textContent = colorStyles;
+    document.head.appendChild(styleElement);
+}
+
 const Toaster = ({ ...props }: ToasterProps) => {
     const { theme = "system" } = useTheme();
 
@@ -96,11 +144,25 @@ const Toaster = ({ ...props }: ToasterProps) => {
         <Sonner
             theme={theme as ToasterProps["theme"]}
             className='toaster group'
+            toastOptions={{
+                classNames: {
+                    toast: "group toast group-[.toaster]:font-sans group-[.toaster]:border group-[.toaster]:bg-white group-[.toaster]:text-black group-[.toaster]:shadow-sm",
+                    description: "group-[.toast]:text-black",
+                    actionButton: "group-[.toast]:bg-black group-[.toast]:text-white",
+                    cancelButton:
+                        "group-[.toast]:bg-white group-[.toast]:text-black group-[.toast]:border-black group-[.toast]:border",
+                    // 添加識別類以方便樣式選擇
+                    success: "sonner-toast-success group-[.toast]:border-l-green-500 group-[.toast]:border-l-2",
+                    error: "sonner-toast-error group-[.toast]:border-l-red-500 group-[.toast]:border-l-2",
+                    warning: "sonner-toast-warning group-[.toast]:border-l-yellow-500 group-[.toast]:border-l-2",
+                    info: "sonner-toast-info group-[.toast]:border-l-blue-500 group-[.toast]:border-l-2",
+                },
+            }}
             style={
                 {
-                    "--normal-bg": "var(--popover)",
-                    "--normal-text": "var(--popover-foreground)",
-                    "--normal-border": "var(--border)",
+                    "--normal-bg": "white",
+                    "--normal-text": "black",
+                    "--normal-border": "#e0e0e0",
                 } as React.CSSProperties
             }
             {...props}

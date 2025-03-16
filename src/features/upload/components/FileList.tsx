@@ -1,6 +1,8 @@
 import React from "react";
 
-import { ArchiveIcon, CloseIcon, CopyIcon, DeleteIcon, DocumentIcon, FileIcon, ImageIcon } from "@/assets/icon";
+import { ArchiveIcon, CloseIcon, DocumentIcon, FileIcon, ImageIcon } from "@/assets/icon";
+import CopyIcon from "@/assets/icon/CopyIcon";
+import DeleteIcon from "@/assets/icon/DeleteIcon";
 
 import { UploadFile } from "../types";
 

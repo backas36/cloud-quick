@@ -21,11 +21,11 @@ export default function Upload() {
     };
 
     return (
-        <div className='flex w-full flex-1 flex-col items-center justify-center space-y-6 bg-gray-50 p-4'>
+        <div className='flex w-full flex-1 flex-col items-center justify-center space-y-8 bg-white p-4'>
             <Toaster position='top-right' />
-            <h1 className='text-3xl font-medium tracking-tight'>檔案上傳</h1>
+            <h1 className='text-3xl font-medium tracking-tight text-black'>檔案上傳</h1>
 
-            <div className='w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm'>
+            <div className='w-full max-w-md rounded-sm border border-black bg-white p-8 shadow-sm'>
                 <DropZone onFilesSelected={handleFileSelect} />
 
                 <FileList
