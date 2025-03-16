@@ -1,6 +1,19 @@
 import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
+import {
+    ArchiveIcon,
+    CloseIcon,
+    CopyIcon,
+    DeleteIcon,
+    DocumentIcon,
+    ErrorIcon,
+    FileIcon,
+    ImageIcon,
+    InfoIcon,
+    SuccessIcon,
+    UploadIcon,
+} from "@/assets/icon";
 import { Button } from "@/components/ui/button";
 
 // 檔案類型和大小限制
@@ -125,7 +138,7 @@ export default function Upload() {
             const filesToProcess = Array.from(selectedFiles).slice(0, remainingSlots);
 
             if (filesToProcess.length < selectedFiles.length) {
-                showNotification(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`, "info");
+                showNotification(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`, "error");
             }
 
             const newFiles = filesToProcess.map((file) => {
@@ -278,92 +291,52 @@ export default function Upload() {
     // 計算待上傳檔案數量
     const pendingFilesCount = files.filter((file) => file.status === "pending").length;
 
+    // 通知元件渲染
+    const renderNotifications = () => {
+        if (notifications.length === 0) return null;
+
+        return (
+            <div className='fixed top-4 right-4 z-50 flex w-72 flex-col space-y-2'>
+                {notifications.map((notification) => (
+                    <div
+                        key={notification.id}
+                        className={`flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 shadow-md transition-all duration-300 ease-in-out ${
+                            notification.type === "error"
+                                ? "border-l-4 border-l-red-500"
+                                : notification.type === "success"
+                                  ? "border-l-4 border-l-gray-600"
+                                  : "border-l-4 border-l-gray-400"
+                        }`}
+                    >
+                        <div className='flex items-center space-x-2'>
+                            {notification.type === "error" && <ErrorIcon className='text-red-500' />}
+                            {notification.type === "success" && <SuccessIcon className='text-gray-600' />}
+                            {notification.type === "info" && <InfoIcon className='text-gray-400' />}
+                            <p
+                                className={`text-sm ${
+                                    notification.type === "error" ? "text-red-500" : "text-gray-700"
+                                }`}
+                            >
+                                {notification.message}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => removeNotification(notification.id)}
+                            className='text-gray-400 hover:text-gray-600'
+                        >
+                            <CloseIcon />
+                        </button>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className='flex w-full flex-1 flex-col items-center justify-center space-y-6 bg-gray-50 p-4'>
             <h1 className='text-3xl font-medium tracking-tight'>檔案上傳</h1>
 
-            {/* 通知區域 */}
-            {notifications.length > 0 && (
-                <div className='fixed top-4 right-4 z-50 flex w-72 flex-col space-y-2'>
-                    {notifications.map((notification) => (
-                        <div
-                            key={notification.id}
-                            className={`flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 shadow-md transition-all duration-300 ease-in-out ${
-                                notification.type === "error"
-                                    ? "border-l-4 border-l-gray-800"
-                                    : notification.type === "success"
-                                      ? "border-l-4 border-l-gray-600"
-                                      : "border-l-4 border-l-gray-400"
-                            }`}
-                        >
-                            <div className='flex items-center space-x-2'>
-                                {notification.type === "error" && (
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        className='h-5 w-5 text-gray-800'
-                                        viewBox='0 0 20 20'
-                                        fill='currentColor'
-                                    >
-                                        <path
-                                            fillRule='evenodd'
-                                            d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
-                                            clipRule='evenodd'
-                                        />
-                                    </svg>
-                                )}
-                                {notification.type === "success" && (
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        className='h-5 w-5 text-gray-600'
-                                        viewBox='0 0 20 20'
-                                        fill='currentColor'
-                                    >
-                                        <path
-                                            fillRule='evenodd'
-                                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                                            clipRule='evenodd'
-                                        />
-                                    </svg>
-                                )}
-                                {notification.type === "info" && (
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        className='h-5 w-5 text-gray-400'
-                                        viewBox='0 0 20 20'
-                                        fill='currentColor'
-                                    >
-                                        <path
-                                            fillRule='evenodd'
-                                            d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z'
-                                            clipRule='evenodd'
-                                        />
-                                    </svg>
-                                )}
-                                <p className='text-sm text-gray-700'>{notification.message}</p>
-                            </div>
-                            <button
-                                onClick={() => removeNotification(notification.id)}
-                                className='text-gray-400 hover:text-gray-600'
-                            >
-                                <svg
-                                    xmlns='http://www.w3.org/2000/svg'
-                                    className='h-4 w-4'
-                                    fill='none'
-                                    viewBox='0 0 24 24'
-                                    stroke='currentColor'
-                                >
-                                    <path
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth={2}
-                                        d='M6 18L18 6M6 6l12 12'
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {renderNotifications()}
 
             <div className='w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm'>
                 <div
@@ -382,20 +355,7 @@ export default function Upload() {
                         multiple
                         onChange={handleFileInputChange}
                     />
-                    <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        className='mb-2 h-6 w-6 text-gray-400'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                    >
-                        <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
-                        />
-                    </svg>
+                    <UploadIcon className='mb-2 text-gray-400' size={24} />
                     <p className='text-sm text-gray-500'>拖曳檔案至此或點擊選擇檔案</p>
                     <p className='mt-1 text-xs text-gray-400'>支援的檔案格式：圖片、文件、壓縮檔</p>
                     <p className='mt-1 text-xs text-gray-400'>一次最多上傳 5 個檔案</p>
@@ -409,54 +369,14 @@ export default function Upload() {
                                     <div className='flex items-center justify-between'>
                                         <div className='flex items-center space-x-2'>
                                             <span className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-100'>
-                                                {file.fileType === "image" && (
-                                                    <svg
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                        className='h-4 w-4 text-gray-600'
-                                                        fill='none'
-                                                        viewBox='0 0 24 24'
-                                                        stroke='currentColor'
-                                                    >
-                                                        <path
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                            strokeWidth={2}
-                                                            d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                                                        />
-                                                    </svg>
-                                                )}
+                                                {file.fileType === "image" && <ImageIcon className='text-gray-600' />}
                                                 {file.fileType === "document" && (
-                                                    <svg
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                        className='h-4 w-4 text-gray-600'
-                                                        fill='none'
-                                                        viewBox='0 0 24 24'
-                                                        stroke='currentColor'
-                                                    >
-                                                        <path
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                            strokeWidth={2}
-                                                            d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                                                        />
-                                                    </svg>
+                                                    <DocumentIcon className='text-gray-600' />
                                                 )}
                                                 {file.fileType === "archive" && (
-                                                    <svg
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                        className='h-4 w-4 text-gray-600'
-                                                        fill='none'
-                                                        viewBox='0 0 24 24'
-                                                        stroke='currentColor'
-                                                    >
-                                                        <path
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                            strokeWidth={2}
-                                                            d='M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4'
-                                                        />
-                                                    </svg>
+                                                    <ArchiveIcon className='text-gray-600' />
                                                 )}
+                                                {file.fileType === "other" && <FileIcon className='text-gray-600' />}
                                             </span>
                                             <div>
                                                 <p
@@ -477,20 +397,7 @@ export default function Upload() {
                                                         className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
                                                         title='刪除檔案'
                                                     >
-                                                        <svg
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='h-4 w-4'
-                                                            fill='none'
-                                                            viewBox='0 0 24 24'
-                                                            stroke='currentColor'
-                                                        >
-                                                            <path
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                                strokeWidth={2}
-                                                                d='M6 18L18 6M6 6l12 12'
-                                                            />
-                                                        </svg>
+                                                        <CloseIcon />
                                                     </button>
                                                 </div>
                                             )}
@@ -514,40 +421,14 @@ export default function Upload() {
                                                         className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
                                                         title='複製 URL'
                                                     >
-                                                        <svg
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='h-4 w-4'
-                                                            fill='none'
-                                                            viewBox='0 0 24 24'
-                                                            stroke='currentColor'
-                                                        >
-                                                            <path
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                                strokeWidth={2}
-                                                                d='M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3'
-                                                            />
-                                                        </svg>
+                                                        <CopyIcon />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteFile(file.id, file.name)}
                                                         className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
                                                         title='刪除檔案'
                                                     >
-                                                        <svg
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='h-4 w-4'
-                                                            fill='none'
-                                                            viewBox='0 0 24 24'
-                                                            stroke='currentColor'
-                                                        >
-                                                            <path
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                                strokeWidth={2}
-                                                                d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                                                            />
-                                                        </svg>
+                                                        <DeleteIcon />
                                                     </button>
                                                 </div>
                                             )}
@@ -561,20 +442,7 @@ export default function Upload() {
                                                         className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
                                                         title='刪除檔案'
                                                     >
-                                                        <svg
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='h-4 w-4'
-                                                            fill='none'
-                                                            viewBox='0 0 24 24'
-                                                            stroke='currentColor'
-                                                        >
-                                                            <path
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                                strokeWidth={2}
-                                                                d='M6 18L18 6M6 6l12 12'
-                                                            />
-                                                        </svg>
+                                                        <CloseIcon />
                                                     </button>
                                                 </div>
                                             )}
