@@ -5,6 +5,8 @@ import About from "@/pages/About";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/NotFound";
 
+import Upload from "./pages/Upload";
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -21,6 +23,10 @@ const router = createBrowserRouter([
             {
                 path: "*",
                 element: <NotFound />,
+            },
+            {
+                path: "upload",
+                element: <Upload />,
             },
         ],
     },

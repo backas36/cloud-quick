@@ -1,15 +1,15 @@
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
     return (
-        <div className='flex min-h-svh flex-col items-center justify-center'>
+        <div className='flex w-full flex-1 flex-col items-center justify-center'>
             <h1 className='mb-4 text-3xl font-bold'>Cloud Quick</h1>
             <p className='mb-6'>歡迎使用 Cloud Quick 應用</p>
-            <div className='flex gap-4'>
-                <Button variant='default'>默認按鈕</Button>
-                <Button variant='outline'>輪廓按鈕</Button>
-                <Button variant='destructive'>危險按鈕</Button>
-            </div>
+            <Button variant='outline' asChild className='border-gray-700 hover:bg-gray-100'>
+                <Link to='/upload'>前往上傳</Link>
+            </Button>
         </div>
     );
 }
