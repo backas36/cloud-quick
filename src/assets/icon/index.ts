@@ -1,5 +1,7 @@
 export * from "./ArchiveIcon";
 export * from "./CloseIcon";
+export * from "./CopyIcon";
+export * from "./DeleteIcon";
 export * from "./DocumentIcon";
 export * from "./ErrorIcon";
 export * from "./FileIcon";

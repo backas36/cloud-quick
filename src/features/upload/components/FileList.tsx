@@ -1,8 +1,6 @@
 import React from "react";
 
-import { ArchiveIcon, CloseIcon, DocumentIcon, FileIcon, ImageIcon } from "@/assets/icon";
-import CopyIcon from "@/assets/icon/CopyIcon";
-import DeleteIcon from "@/assets/icon/DeleteIcon";
+import { ArchiveIcon, CloseIcon, CopyIcon, DeleteIcon, DocumentIcon, FileIcon, ImageIcon } from "@/assets/icon";
 
 import { UploadFile } from "../types";
 
@@ -63,15 +61,10 @@ export const FileList: React.FC<FileListProps> = ({ files, formatFileSize, handl
                                         <p className='mt-1 text-right text-xs text-gray-500'>{file.progress}%</p>
                                     </div>
                                 )}
-                                {file.status === "success" && (
+                                {file.status === "error" && (
                                     <div className='flex items-center space-x-2'>
-                                        <button
-                                            onClick={() => file.url && handleCopyUrl(file.url, file.name)}
-                                            className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
-                                            title='複製 URL'
-                                        >
-                                            <CopyIcon />
-                                        </button>
+                                        <span className='text-xs text-red-500'>錯誤</span>
+                                        <p className='text-xs text-red-500'>{file.errorMessage}</p>
                                         <button
                                             onClick={() => handleDeleteFile(file.id, file.name)}
                                             className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
@@ -81,17 +74,22 @@ export const FileList: React.FC<FileListProps> = ({ files, formatFileSize, handl
                                         </button>
                                     </div>
                                 )}
-                                {file.status === "error" && (
+                                {file.status === "success" && file.url && (
                                     <div className='flex items-center space-x-2'>
-                                        <span className='text-xs text-gray-700' title={file.errorMessage}>
-                                            {file.errorMessage}
-                                        </span>
+                                        <span className='text-xs text-green-500'>已上傳</span>
+                                        <button
+                                            onClick={() => handleCopyUrl(file.url!, file.name)}
+                                            className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
+                                            title='複製連結'
+                                        >
+                                            <CopyIcon />
+                                        </button>
                                         <button
                                             onClick={() => handleDeleteFile(file.id, file.name)}
                                             className='rounded-md bg-gray-100 p-1 text-xs text-gray-600 hover:bg-gray-200'
                                             title='刪除檔案'
                                         >
-                                            <CloseIcon />
+                                            <DeleteIcon />
                                         </button>
                                     </div>
                                 )}

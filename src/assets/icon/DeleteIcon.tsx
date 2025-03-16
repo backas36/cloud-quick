@@ -1,8 +1,6 @@
 import React from "react";
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {
-    size?: number;
-}
+import { IconProps } from "./types";
 
 export const DeleteIcon: React.FC<IconProps> = ({ size = 16, className = "", ...props }) => {
     return (
@@ -13,13 +11,16 @@ export const DeleteIcon: React.FC<IconProps> = ({ size = 16, className = "", ...
             viewBox='0 0 24 24'
             fill='none'
             stroke='currentColor'
-            strokeWidth={2}
+            strokeWidth='2'
             strokeLinecap='round'
             strokeLinejoin='round'
-            className={`${className}`}
+            className={className}
             {...props}
         >
-            <path d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+            <path d='M3 6h18'></path>
+            <path d='M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2'></path>
+            <line x1='10' y1='11' x2='10' y2='17'></line>
+            <line x1='14' y1='11' x2='14' y2='17'></line>
         </svg>
     );
 };

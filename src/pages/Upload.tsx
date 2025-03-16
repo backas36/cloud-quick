@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Toaster } from "@/components/ui/sonner";
 import { UploadSection } from "@/features/upload";
 
