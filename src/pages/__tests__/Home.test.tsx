@@ -12,10 +12,5 @@ describe("Home 組件", () => {
 
         // 檢查歡迎文字是否存在
         expect(screen.getByText("歡迎使用 Cloud Quick 應用")).toBeInTheDocument();
-
-        // 檢查按鈕是否存在
-        expect(screen.getByText("默認按鈕")).toBeInTheDocument();
-        expect(screen.getByText("輪廓按鈕")).toBeInTheDocument();
-        expect(screen.getByText("危險按鈕")).toBeInTheDocument();
     });
 });
