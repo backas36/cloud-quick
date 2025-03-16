@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 
 import {
     ArchiveIcon,
@@ -7,11 +8,8 @@ import {
     CopyIcon,
     DeleteIcon,
     DocumentIcon,
-    ErrorIcon,
     FileIcon,
     ImageIcon,
-    InfoIcon,
-    SuccessIcon,
     UploadIcon,
 } from "@/assets/icon";
 import { Button } from "@/components/ui/button";
@@ -49,43 +47,10 @@ interface UploadFile {
     uploadedAt: Date;
 }
 
-// 通知類型
-interface Notification {
-    id: string;
-    message: string;
-    type: "info" | "success" | "error";
-    duration?: number;
-}
-
 export default function Upload() {
     const [files, setFiles] = useState<UploadFile[]>([]);
     const [isDragging, setIsDragging] = useState(false);
-    const [notifications, setNotifications] = useState<Notification[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // 顯示通知
-    const showNotification = useCallback(
-        (message: string, type: "info" | "success" | "error" = "info", duration = 3000) => {
-            const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-            setNotifications((prev) => [...prev, { id, message, type, duration }]);
-
-            // 自動移除通知
-            if (duration > 0) {
-                setTimeout(() => {
-                    setNotifications((prev) => prev.filter((n) => n.id !== id));
-                }, duration);
-            }
-
-            return id;
-        },
-        []
-    );
-
-    // 移除通知
-    const removeNotification = useCallback((id: string) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-    }, []);
 
     // 判斷檔案類型
     const getFileType = (fileName: string): FileType => {
@@ -130,7 +95,10 @@ export default function Upload() {
             const remainingSlots = 5 - activeFilesCount;
 
             if (remainingSlots <= 0) {
-                showNotification("一次最多只能上傳五個檔案", "error");
+                toast.error("一次最多只能上傳五個檔案", {
+                    duration: 4000,
+                    style: { backgroundColor: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5" },
+                });
                 return;
             }
 
@@ -138,7 +106,10 @@ export default function Upload() {
             const filesToProcess = Array.from(selectedFiles).slice(0, remainingSlots);
 
             if (filesToProcess.length < selectedFiles.length) {
-                showNotification(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`, "error");
+                toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`, {
+                    duration: 4000,
+                    style: { backgroundColor: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5" },
+                });
             }
 
             const newFiles = filesToProcess.map((file) => {
@@ -162,10 +133,12 @@ export default function Upload() {
 
             if (newFiles.length > 0) {
                 setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-                showNotification(`已選擇 ${newFiles.length} 個檔案`, "success");
+                toast.success(`已選擇 ${newFiles.length} 個檔案`, {
+                    duration: 3000,
+                });
             }
         },
-        [files, showNotification]
+        [files]
     );
 
     // 處理檔案上傳
@@ -180,7 +153,7 @@ export default function Upload() {
             prevFiles.map((file) => (file.status === "pending" ? { ...file, status: "uploading" } : file))
         );
 
-        showNotification(`開始上傳 ${pendingFiles.length} 個檔案`, "info");
+        toast.info(`開始上傳 ${pendingFiles.length} 個檔案`);
 
         // 模擬上傳過程
         pendingFiles.forEach((file) => {
@@ -195,7 +168,7 @@ export default function Upload() {
 
                                 // 上傳完成後顯示通知
                                 setTimeout(() => {
-                                    showNotification(`${f.name} 上傳成功`, "success");
+                                    toast.success(`${f.name} 上傳成功`);
                                 }, 300);
 
                                 return {
@@ -215,7 +188,7 @@ export default function Upload() {
                 });
             }, 300);
         });
-    }, [files, showNotification]);
+    }, [files]);
 
     // 處理拖曳事件
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -257,29 +230,23 @@ export default function Upload() {
     );
 
     // 複製 URL 到剪貼簿
-    const handleCopyUrl = useCallback(
-        (url: string, fileName: string) => {
-            navigator.clipboard
-                .writeText(url)
-                .then(() => {
-                    showNotification(`已複製 ${fileName} 的 URL`, "success");
-                })
-                .catch((err) => {
-                    console.error("複製失敗:", err);
-                    showNotification("複製 URL 失敗", "error");
-                });
-        },
-        [showNotification]
-    );
+    const handleCopyUrl = useCallback((url: string, fileName: string) => {
+        navigator.clipboard
+            .writeText(url)
+            .then(() => {
+                toast.success(`已複製 ${fileName} 的 URL`);
+            })
+            .catch((err) => {
+                console.error("複製失敗:", err);
+                toast.error("複製 URL 失敗");
+            });
+    }, []);
 
     // 刪除檔案
-    const handleDeleteFile = useCallback(
-        (id: string, fileName: string) => {
-            setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
-            showNotification(`已刪除 ${fileName}`, "info");
-        },
-        [showNotification]
-    );
+    const handleDeleteFile = useCallback((id: string, fileName: string) => {
+        setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+        toast.info(`已刪除 ${fileName}`);
+    }, []);
 
     // 格式化檔案大小
     const formatFileSize = (bytes: number): string => {
@@ -291,52 +258,10 @@ export default function Upload() {
     // 計算待上傳檔案數量
     const pendingFilesCount = files.filter((file) => file.status === "pending").length;
 
-    // 通知元件渲染
-    const renderNotifications = () => {
-        if (notifications.length === 0) return null;
-
-        return (
-            <div className='fixed top-4 right-4 z-50 flex w-72 flex-col space-y-2'>
-                {notifications.map((notification) => (
-                    <div
-                        key={notification.id}
-                        className={`flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 shadow-md transition-all duration-300 ease-in-out ${
-                            notification.type === "error"
-                                ? "border-l-4 border-l-red-500"
-                                : notification.type === "success"
-                                  ? "border-l-4 border-l-gray-600"
-                                  : "border-l-4 border-l-gray-400"
-                        }`}
-                    >
-                        <div className='flex items-center space-x-2'>
-                            {notification.type === "error" && <ErrorIcon className='text-red-500' />}
-                            {notification.type === "success" && <SuccessIcon className='text-gray-600' />}
-                            {notification.type === "info" && <InfoIcon className='text-gray-400' />}
-                            <p
-                                className={`text-sm ${
-                                    notification.type === "error" ? "text-red-500" : "text-gray-700"
-                                }`}
-                            >
-                                {notification.message}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => removeNotification(notification.id)}
-                            className='text-gray-400 hover:text-gray-600'
-                        >
-                            <CloseIcon />
-                        </button>
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
     return (
         <div className='flex w-full flex-1 flex-col items-center justify-center space-y-6 bg-gray-50 p-4'>
+            <Toaster position='top-right' />
             <h1 className='text-3xl font-medium tracking-tight'>檔案上傳</h1>
-
-            {renderNotifications()}
 
             <div className='w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm'>
                 <div
