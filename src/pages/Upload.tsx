@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { toast, Toaster } from "sonner";
 
 import {
     ArchiveIcon,
@@ -13,6 +12,7 @@ import {
     UploadIcon,
 } from "@/assets/icon";
 import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "@/components/ui/sonner";
 
 // 檔案類型和大小限制
 const ALLOWED_FILE_TYPES = {
@@ -95,10 +95,7 @@ export default function Upload() {
             const remainingSlots = 5 - activeFilesCount;
 
             if (remainingSlots <= 0) {
-                toast.error("一次最多只能上傳五個檔案", {
-                    duration: 4000,
-                    style: { backgroundColor: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5" },
-                });
+                toast.error("一次最多只能上傳五個檔案");
                 return;
             }
 
@@ -106,10 +103,7 @@ export default function Upload() {
             const filesToProcess = Array.from(selectedFiles).slice(0, remainingSlots);
 
             if (filesToProcess.length < selectedFiles.length) {
-                toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`, {
-                    duration: 4000,
-                    style: { backgroundColor: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5" },
-                });
+                toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`);
             }
 
             const newFiles = filesToProcess.map((file) => {
@@ -133,9 +127,7 @@ export default function Upload() {
 
             if (newFiles.length > 0) {
                 setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-                toast.success(`已選擇 ${newFiles.length} 個檔案`, {
-                    duration: 3000,
-                });
+                toast.success(`已選擇 ${newFiles.length} 個檔案`);
             }
         },
         [files]
