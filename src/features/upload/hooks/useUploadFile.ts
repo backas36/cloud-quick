@@ -1,64 +1,69 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { toast } from "@/components/ui/sonner";
 
 import { ALLOWED_FILE_TYPES, FILE_SIZE_LIMITS, FileType, UploadFile } from "../types";
 
+const MAX_FILE_COUNT = 5;
+
+// 判斷檔案類型
+const getFileType = (fileName: string): FileType => {
+    const extension = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+
+    if (ALLOWED_FILE_TYPES.image.includes(extension)) return "image";
+    if (ALLOWED_FILE_TYPES.document.includes(extension)) return "document";
+    if (ALLOWED_FILE_TYPES.archive.includes(extension)) return "archive";
+
+    // 這裡可以添加更多類型判斷
+    return "other";
+};
+
 const useUploadFile = () => {
     const [files, setFiles] = useState<UploadFile[]>([]);
 
-    // 判斷檔案類型
-    const getFileType = useCallback((fileName: string): FileType => {
-        const extension = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+    // 檢查檔案是否符合要求
+    const validateFile = useCallback((file: File): { valid: boolean; message?: string } => {
+        const fileType = getFileType(file.name);
 
-        if (ALLOWED_FILE_TYPES.image.includes(extension)) return "image";
-        if (ALLOWED_FILE_TYPES.document.includes(extension)) return "document";
-        if (ALLOWED_FILE_TYPES.archive.includes(extension)) return "archive";
+        // 檢查檔案類型是否允許
+        if (fileType === "other") {
+            return { valid: false, message: "不支援的檔案類型" };
+        }
 
-        // 這裡可以添加更多類型判斷
-        return "other";
+        // 檢查檔案大小
+        const sizeLimit = FILE_SIZE_LIMITS[fileType] || FILE_SIZE_LIMITS.default;
+        if (file.size > sizeLimit) {
+            const sizeMB = Math.round(sizeLimit / (1024 * 1024));
+            return { valid: false, message: `檔案大小超過限制 (${sizeMB}MB)` };
+        }
+
+        return { valid: true };
     }, []);
 
-    // 檢查檔案是否符合要求
-    const validateFile = useCallback(
-        (file: File): { valid: boolean; message?: string } => {
-            const fileType = getFileType(file.name);
+    // 計算目前待上傳和上傳中的檔案數量
+    const activeFilesCount = useMemo(() => {
+        return files.filter((file) => file.status === "pending" || file.status === "uploading").length;
+    }, [files]);
 
-            // 檢查檔案類型是否允許
-            if (fileType === "other") {
-                return { valid: false, message: "不支援的檔案類型" };
+    const getFilesToProcess = useCallback(
+        (selectedFiles: File[]) => {
+            const remainingSlots = MAX_FILE_COUNT - activeFilesCount;
+
+            if (remainingSlots <= 0) {
+                toast.error("一次最多只能上傳五個檔案");
+                return [];
             }
 
-            // 檢查檔案大小
-            const sizeLimit = FILE_SIZE_LIMITS[fileType] || FILE_SIZE_LIMITS.default;
-            if (file.size > sizeLimit) {
-                const sizeMB = Math.round(sizeLimit / (1024 * 1024));
-                return { valid: false, message: `檔案大小超過限制 (${sizeMB}MB)` };
-            }
-
-            return { valid: true };
+            return Array.from(selectedFiles).slice(0, remainingSlots);
         },
-        [getFileType]
+        [activeFilesCount]
     );
 
     // 處理檔案選擇
     const handleFileSelect = useCallback(
         (selectedFiles: File[]) => {
-            // 計算目前待上傳和上傳中的檔案數量
-            const activeFilesCount = files.filter(
-                (file) => file.status === "pending" || file.status === "uploading"
-            ).length;
-
-            // 計算可以再添加的檔案數量
-            const remainingSlots = 5 - activeFilesCount;
-
-            if (remainingSlots <= 0) {
-                toast.error("一次最多只能上傳五個檔案");
-                return;
-            }
-
             // 如果選擇的檔案超過可用數量，只取前 remainingSlots 個
-            const filesToProcess = Array.from(selectedFiles).slice(0, remainingSlots);
+            const filesToProcess = getFilesToProcess(selectedFiles);
 
             if (filesToProcess.length < selectedFiles.length) {
                 toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`);
@@ -85,10 +90,9 @@ const useUploadFile = () => {
 
             if (newFiles.length > 0) {
                 setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-                toast.success(`已選擇 ${newFiles.length} 個檔案`);
             }
         },
-        [files, getFileType, validateFile]
+        [validateFile, getFilesToProcess]
     );
 
     // 處理檔案上傳
