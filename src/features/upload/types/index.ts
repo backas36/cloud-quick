@@ -40,6 +40,8 @@ export interface UploadFile {
     errorMessage?: string;
     /** 上傳時間 */
     uploadedAt: Date;
+    /** 檔案 URL，上傳成功後才會有值 */
+    url?: string;
 }
 
 /**
