@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { UploadSection } from "@/features/upload";
 
-export default function Upload() {
+export default function UploadPage() {
     return (
         <div className='flex w-full flex-1 flex-col items-center justify-center space-y-8 bg-white p-4'>
             <Toaster position='top-right' />
