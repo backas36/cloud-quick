@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/sonner";
 
 import { UploadFile } from "../types";
 import { MAX_FILE_COUNT } from "../types/constants";
-import { calculateFilesToProcess, getFileType } from "../utils/fileUtils";
+import { calculateFilesToProcess, createUploadFile } from "../utils/fileUtils";
 import { validateFile } from "../utils/validation";
 
 const useUploadFile = () => {
@@ -31,30 +31,20 @@ const useUploadFile = () => {
     // 處理檔案選擇
     const handleFileSelect = useCallback(
         (selectedFiles: File[]) => {
-            // 如果選擇的檔案超過可用數量，只取前 remainingSlots 個
+            // 處理檔案數量限制
             const filesToProcess = getFilesToProcess(selectedFiles);
 
             if (filesToProcess.length < selectedFiles.length) {
                 toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`);
             }
 
-            const newFiles = filesToProcess.map((file) => {
-                const validation = validateFile(file);
-
-                const uploadFile: UploadFile = {
-                    id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                    fileType: getFileType(file.name),
-                    progress: 0,
-                    status: validation.valid ? "pending" : "error",
-                    errorMessage: validation.message,
-                    uploadedAt: new Date(),
-                };
-
-                return uploadFile;
-            });
+            // 處理檔案轉換
+            const newFiles = filesToProcess
+                .map((file) => ({
+                    file,
+                    validation: validateFile(file),
+                }))
+                .map(createUploadFile);
 
             if (newFiles.length > 0) {
                 setFiles((prevFiles) => [...prevFiles, ...newFiles]);

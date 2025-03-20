@@ -1,4 +1,4 @@
-import { ALLOWED_FILE_TYPES, FileType } from "../types";
+import { ALLOWED_FILE_TYPES, FileType, UploadFile, ValidationResult } from "../types";
 
 /**
  * 判斷檔案類型
@@ -38,3 +38,23 @@ export const calculateFilesToProcess = (
 
     return { result: filesToProcess, hasExceeded };
 };
+
+interface CreateUploadFileOptions {
+    file: File;
+    validation: ValidationResult;
+}
+
+/**
+ * 建立上傳檔案物件
+ */
+export const createUploadFile = ({ file, validation }: CreateUploadFileOptions): UploadFile => ({
+    id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    fileType: getFileType(file.name),
+    progress: 0,
+    status: validation.valid ? "pending" : "error",
+    errorMessage: validation.message,
+    uploadedAt: new Date(),
+});
