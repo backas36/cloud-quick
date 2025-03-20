@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/sonner";
 
 import { UploadFile } from "../types";
 import { MAX_FILE_COUNT } from "../types/constants";
-import { calculateFilesToProcess, createUploadFile } from "../utils/fileUtils";
+import { calculateFilesToProcess, createUploadFile, formatFileSize, getPendingFiles } from "../utils/fileUtils";
 import { validateFile } from "../utils/validation";
 
 const useUploadFile = () => {
@@ -56,8 +56,7 @@ const useUploadFile = () => {
     // 處理檔案上傳
     const handleUploadFiles = useCallback(() => {
         // 篩選出待上傳的檔案
-        const pendingFiles = files.filter((file) => file.status === "pending");
-
+        const pendingFiles = getPendingFiles(files);
         if (pendingFiles.length === 0) return;
 
         // 更新檔案狀態為上傳中
@@ -121,15 +120,8 @@ const useUploadFile = () => {
         toast.info(`已刪除 ${fileName}`);
     }, []);
 
-    // 格式化檔案大小
-    const formatFileSize = useCallback((bytes: number): string => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    }, []);
-
     // 計算待上傳檔案數量
-    const pendingFilesCount = files.filter((file) => file.status === "pending").length;
+    const pendingFilesCount = getPendingFiles(files).length;
 
     return {
         files,

@@ -1,4 +1,4 @@
-import { ALLOWED_FILE_TYPES, FileType, UploadFile, ValidationResult } from "../types";
+import { ALLOWED_FILE_TYPES, FileType, UploadFile, UploadStatus, ValidationResult } from "../types";
 
 /**
  * 判斷檔案類型
@@ -58,3 +58,35 @@ export const createUploadFile = ({ file, validation }: CreateUploadFileOptions):
     errorMessage: validation.message,
     uploadedAt: new Date(),
 });
+
+/**
+ * 檔案過濾器集合
+ */
+export const fileFilters = {
+    /**
+     * 取得特定狀態的檔案
+     */
+    byStatus: (status: UploadStatus) => (files: UploadFile[]) => files.filter((file) => file.status === status),
+
+    /**
+     * 取得特定類型的檔案
+     */
+    byType: (fileType: FileType) => (files: UploadFile[]) => files.filter((file) => file.fileType === fileType),
+} as const;
+
+// 常用的過濾器
+export const getPendingFiles = fileFilters.byStatus("pending");
+export const getUploadingFiles = fileFilters.byStatus("uploading");
+export const getSuccessFiles = fileFilters.byStatus("success");
+export const getErrorFiles = fileFilters.byStatus("error");
+
+/**
+ * 格式化檔案大小
+ * @param bytes 檔案大小（位元組）
+ * @returns 格式化後的檔案大小字串
+ */
+export const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
