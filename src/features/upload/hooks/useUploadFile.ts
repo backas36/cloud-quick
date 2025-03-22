@@ -1,101 +1,62 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { toast } from "@/components/ui/sonner";
 
-import { ALLOWED_FILE_TYPES, FILE_SIZE_LIMITS, FileType, UploadFile } from "../types";
+import { UploadFile } from "../types";
+import { MAX_FILE_COUNT } from "../types/constants";
+import { calculateFilesToProcess, createUploadFile, formatFileSize, getPendingFiles } from "../utils/fileUtils";
+import { validateFile } from "../utils/validation";
 
 const useUploadFile = () => {
     const [files, setFiles] = useState<UploadFile[]>([]);
 
-    // 判斷檔案類型
-    const getFileType = useCallback((fileName: string): FileType => {
-        const extension = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+    // 計算目前待上傳和上傳中的檔案數量
+    const activeFilesCount = useMemo(() => {
+        return files.filter((file) => file.status === "pending" || file.status === "uploading").length;
+    }, [files]);
 
-        if (ALLOWED_FILE_TYPES.image.includes(extension)) return "image";
-        if (ALLOWED_FILE_TYPES.document.includes(extension)) return "document";
-        if (ALLOWED_FILE_TYPES.archive.includes(extension)) return "archive";
+    const getFilesToProcess = useCallback(
+        (selectedFiles: File[]) => {
+            const { result, hasExceeded } = calculateFilesToProcess(selectedFiles, activeFilesCount, MAX_FILE_COUNT);
 
-        // 這裡可以添加更多類型判斷
-        return "other";
-    }, []);
-
-    // 檢查檔案是否符合要求
-    const validateFile = useCallback(
-        (file: File): { valid: boolean; message?: string } => {
-            const fileType = getFileType(file.name);
-
-            // 檢查檔案類型是否允許
-            if (fileType === "other") {
-                return { valid: false, message: "不支援的檔案類型" };
+            if (hasExceeded) {
+                toast.error("一次最多只能上傳五個檔案");
             }
 
-            // 檢查檔案大小
-            const sizeLimit = FILE_SIZE_LIMITS[fileType] || FILE_SIZE_LIMITS.default;
-            if (file.size > sizeLimit) {
-                const sizeMB = Math.round(sizeLimit / (1024 * 1024));
-                return { valid: false, message: `檔案大小超過限制 (${sizeMB}MB)` };
-            }
-
-            return { valid: true };
+            return result;
         },
-        [getFileType]
+        [activeFilesCount]
     );
 
     // 處理檔案選擇
     const handleFileSelect = useCallback(
         (selectedFiles: File[]) => {
-            // 計算目前待上傳和上傳中的檔案數量
-            const activeFilesCount = files.filter(
-                (file) => file.status === "pending" || file.status === "uploading"
-            ).length;
-
-            // 計算可以再添加的檔案數量
-            const remainingSlots = 5 - activeFilesCount;
-
-            if (remainingSlots <= 0) {
-                toast.error("一次最多只能上傳五個檔案");
-                return;
-            }
-
-            // 如果選擇的檔案超過可用數量，只取前 remainingSlots 個
-            const filesToProcess = Array.from(selectedFiles).slice(0, remainingSlots);
+            // 處理檔案數量限制
+            const filesToProcess = getFilesToProcess(selectedFiles);
 
             if (filesToProcess.length < selectedFiles.length) {
                 toast.error(`已達上限，只選取了前 ${filesToProcess.length} 個檔案`);
             }
 
-            const newFiles = filesToProcess.map((file) => {
-                const fileType = getFileType(file.name);
-                const validation = validateFile(file);
-
-                const uploadFile: UploadFile = {
-                    id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                    fileType,
-                    progress: 0,
-                    status: validation.valid ? "pending" : "error",
-                    errorMessage: validation.message,
-                    uploadedAt: new Date(),
-                };
-
-                return uploadFile;
-            });
+            // 處理檔案轉換
+            const newFiles = filesToProcess
+                .map((file) => ({
+                    file,
+                    validation: validateFile(file),
+                }))
+                .map(createUploadFile);
 
             if (newFiles.length > 0) {
                 setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-                toast.success(`已選擇 ${newFiles.length} 個檔案`);
             }
         },
-        [files, getFileType, validateFile]
+        [getFilesToProcess]
     );
 
     // 處理檔案上傳
     const handleUploadFiles = useCallback(() => {
         // 篩選出待上傳的檔案
-        const pendingFiles = files.filter((file) => file.status === "pending");
-
+        const pendingFiles = getPendingFiles(files);
         if (pendingFiles.length === 0) return;
 
         // 更新檔案狀態為上傳中
@@ -159,15 +120,8 @@ const useUploadFile = () => {
         toast.info(`已刪除 ${fileName}`);
     }, []);
 
-    // 格式化檔案大小
-    const formatFileSize = useCallback((bytes: number): string => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    }, []);
-
     // 計算待上傳檔案數量
-    const pendingFilesCount = files.filter((file) => file.status === "pending").length;
+    const pendingFilesCount = getPendingFiles(files).length;
 
     return {
         files,

@@ -10,7 +10,6 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFilesSelected }) => {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // 處理拖曳事件
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDragging(true);
@@ -33,7 +32,6 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFilesSelected }) => {
         [onFilesSelected]
     );
 
-    // 處理點擊選擇檔案
     const handleClickSelect = useCallback(() => {
         fileInputRef.current?.click();
     }, []);

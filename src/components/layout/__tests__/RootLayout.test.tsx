@@ -18,7 +18,7 @@ describe("RootLayout 組件", () => {
 
         // 檢查導航鏈接是否存在
         expect(screen.getByText("首頁")).toBeInTheDocument();
-        expect(screen.getByText("關於")).toBeInTheDocument();
+        expect(screen.getByText("上傳指南")).toBeInTheDocument();
 
         // 檢查 Outlet 是否被渲染
         expect(screen.getByTestId("outlet")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("RootLayout 組件", () => {
         const homeLink = screen.getByText("首頁").closest("a");
         expect(homeLink).toHaveAttribute("href", "/");
 
-        const aboutLink = screen.getByText("關於").closest("a");
-        expect(aboutLink).toHaveAttribute("href", "/about");
+        const guideLink = screen.getByText("上傳指南").closest("a");
+        expect(guideLink).toHaveAttribute("href", "/guide");
     });
 });

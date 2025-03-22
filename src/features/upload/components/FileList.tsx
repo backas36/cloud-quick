@@ -2,7 +2,7 @@ import React from "react";
 
 import { ArchiveIcon, CloseIcon, CopyIcon, DeleteIcon, DocumentIcon, FileIcon, ImageIcon } from "@/assets/icon";
 
-import { UploadFile } from "../types";
+import { UploadFile } from "../types/index";
 
 interface FileListProps {
     files: UploadFile[];
