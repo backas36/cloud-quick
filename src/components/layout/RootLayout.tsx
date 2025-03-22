@@ -15,7 +15,7 @@ export default function RootLayout() {
                             <Link to='/'>首頁</Link>
                         </Button>
                         <Button variant='ghost' asChild>
-                            <Link to='/about'>關於</Link>
+                            <Link to='/guide'>上傳指南</Link>
                         </Button>
                     </nav>
                 </div>
